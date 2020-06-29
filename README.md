@@ -1,3 +1,32 @@
+My own patches since upstream does not accept contributions at the moment.
+Use at your own risk! I only tested in check mode so far :D
+
+support a couple of missing options:
+
+- the SCSI LUN ID when creating a mapping with ibm_svc_vol_map
+- the iogroup and default node when creating a volume with ibm_svc_vdisk
+
+try to prevent changes (fail if a change is detected) as in its current state,
+the module does not know how to converge towards the defined state if the
+resource already exists.
+
+in ibm_svc_info:
+
+- object_name in fc is now a host
+- implement vdiskhostmap for lsvdiskhostmap, hostvdiskmap for lshostvdiskmap
+
+install after cloning (https://github.com/freedge/ibm.spectrum_virtualize/)
+
+```
+ansible-galaxy collection build --force
+ansible-galaxy collection install ibm-spectrum_virtualize-1.1.0.tar.gz
+```
+
+
+-------------------------------
+
+
+
 # Ansible Collection - ibm.spectrum_virtualize
 
 [![Doc](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://docs.ansible.com/ansible/latest/modules/list_of_cloud_modules.html#azure)

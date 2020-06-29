@@ -149,7 +149,9 @@ class IBMSVCvdisk(object):
                                                              'mb', 'gb',
                                                              'tb', 'pb']),
                 easytier=dict(type='str', default='off', choices=['on', 'off',
-                                                                  'auto'])
+                                                                  'auto']),
+                iogrp=dict(type='str', required=False),
+                node=dict(type='str', required=False)
             )
         )
 
@@ -170,6 +172,8 @@ class IBMSVCvdisk(object):
         self.size = self.module.params['size']
         self.unit = self.module.params['unit']
         self.easytier = self.module.params.get('easytier', None)
+        self.node = self.module.params.get('node', None)
+        self.iogrp = self.module.params.get('iogrp', None)
 
         self.restapi = IBMSVCRestApi(
             module=self.module,
@@ -204,6 +208,12 @@ class IBMSVCvdisk(object):
             if self.easytier != data['easy_tier']:
                 props += ['easytier']
 
+        if self.iogrp != None and self.iogrp != data['IO_group_name']:
+            props += ['iogrp']
+
+        if (self.size + ".00" + self.unit).upper() != data['capacity']:
+            props += ['capacity']
+
         if props is []:
             props = None
 
@@ -236,6 +246,11 @@ class IBMSVCvdisk(object):
             cmdopts['unit'] = self.unit
         if self.easytier:
             cmdopts['easytier'] = self.easytier
+        if self.iogrp:
+            cmdopts['iogrp'] = self.iogrp
+        if self.node:
+            cmdopts['node'] = self.node
+
         cmdopts['name'] = self.name
         self.log("creating vdisk command %s opts %s", cmd, cmdopts)
 
@@ -251,22 +266,7 @@ class IBMSVCvdisk(object):
                 msg="Failed to create vdisk [%s]" % self.name)
 
     def vdisk_update(self, modify):
-        # update the vdisk
-        self.log("updating vdisk '%s'", self.name)
-
-        cmd = 'chvdisk'
-        cmdopts = {}
-
-        # TBD: Be smarter handling many properties.
-        if 'easytier' in modify:
-            cmdopts['easytier'] = self.easytier
-        cmdargs = [self.name]
-
-        self.restapi.svc_run_command(cmd, cmdopts, cmdargs)
-
-        # Any error will have been raised in svc_run_command
-        # chvdisk does not output anything when successful.
-        self.changed = True
+        self.module.fail_json(msg="volume changed but update not implemented")
 
     def vdisk_delete(self):
         self.log("deleting vdisk '%s'", self.name)

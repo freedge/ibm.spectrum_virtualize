@@ -181,6 +181,8 @@ class IBMSVCGatherInfo(object):
                                             'vdiskcopy',
                                             'array',
                                             'system',
+                                            'vdiskhostmap',
+                                            'hostvdiskmap',
                                             'all'
                                             ]),
             )
@@ -291,9 +293,9 @@ class IBMSVCGatherInfo(object):
 
     def get_fc_connectivity_list(self):
         try:
-            cmdargs = [self.objectname] if self.objectname else None
-            fc = self.restapi.svc_obj_info(cmd='lsfabric', cmdopts=None,
-                                           cmdargs=cmdargs)
+            cmdopts = dict(host=self.objectname) if self.objectname else None
+            fc = self.restapi.svc_obj_info(cmd='lsfabric', cmdopts=cmdopts,
+                                           cmdargs=None)
             self.log.info('Successfully listed %d fc connectivity from array '
                           '%s', len(fc), self.module.params['clustername'])
             return fc
@@ -390,6 +392,34 @@ class IBMSVCGatherInfo(object):
             self.log.error(msg)
             self.module.fail_json(msg=msg)
 
+    def get_vdiskhostmap(self):
+        try:
+            cmdargs = [self.objectname] if self.objectname else None
+            array = self.restapi.svc_obj_info(cmd='lsvdiskhostmap', cmdopts=None,
+                                         cmdargs=cmdargs)
+            self.log.info('Successfully listed %d array info from array %s',
+                          len(array), self.module.params['clustername'])
+            return array
+        except Exception as e:
+            msg = ('Get Array info from array %s failed with error %s ',
+                   self.module.params['clustername'], str(e))
+            self.log.error(msg)
+            self.module.fail_json(msg=msg)
+
+    def get_hostvdiskhostmap(self):
+        try:
+            cmdargs = [self.objectname] if self.objectname else None
+            array = self.restapi.svc_obj_info(cmd='lshostvdiskmap', cmdopts=None,
+                                         cmdargs=cmdargs)
+            self.log.info('Successfully listed %d array info from array %s',
+                          len(array), self.module.params['clustername'])
+            return array
+        except Exception as e:
+            msg = ('Get Array info from array %s failed with error %s ',
+                   self.module.params['clustername'], str(e))
+            self.log.error(msg)
+            self.module.fail_json(msg=msg)
+
     def get_system_list(self):
         try:
             cmdargs = [self.objectname] if self.objectname else None
@@ -459,7 +489,7 @@ class IBMSVCGatherInfo(object):
         all = ['vol', 'pool', 'node', 'iog', 'host', 'hc', 'fc',
                'fcport', 'iscsiport', 'fcmap', 'rcrelationship',
                'fcconsistgrp', 'rcconsistgrp', 'vdiskcopy',
-               'targetportfc', 'array', 'system']
+               'targetportfc', 'array', 'system', 'vdiskhostmap', 'hostvdiskmap']
         subset = self.module.params['gather_subset']
         if self.objectname and len(subset) != 1:
             msg = ("objectname(%s) is specified while gather_subset(%s) is not "
@@ -519,8 +549,13 @@ class IBMSVCGatherInfo(object):
             vdiskcopy = self.get_vdiskcopy_list()
         if 'array' in subset:
             array = self.get_array_list()
+        if 'vdiskhostmap' in subset:
+            array = self.get_vdiskhostmap()
+        if 'hostvdiskmap' in subset:
+            array = self.get_hostvdiskmap()
         if 'system' in subset:
             system = self.get_system_list()
+
 
         self.module.exit_json(
             Volume=vol,

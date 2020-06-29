@@ -128,6 +128,7 @@ class IBMSVCvdiskhostmap(object):
                 host=dict(type='str', required=True),
                 state=dict(type='str', required=True, choices=['absent',
                                                                'present']),
+                scsi=dict(type='str', required=False),
             )
         )
 
@@ -145,6 +146,7 @@ class IBMSVCvdiskhostmap(object):
         self.state = self.module.params['state']
 
         # Optional
+        self.scsi = self.module.params['scsi']
 
         self.restapi = IBMSVCRestApi(
             module=self.module,
@@ -182,6 +184,9 @@ class IBMSVCvdiskhostmap(object):
         if (self.volname != data['name']):
             props += ['volname']
 
+        if (self.scsi != None and self.scsi != data['SCSI_id']):
+            props += ['scsi']
+
         if props is []:
             props = None
 
@@ -206,6 +211,7 @@ class IBMSVCvdiskhostmap(object):
         cmd = 'mkvdiskhostmap'
         cmdopts = {}
         cmdopts['host'] = self.host
+        cmdopts['scsi'] = self.scsi
         cmdargs = [self.volname]
 
         self.log("creating vdiskhostmap command %s opts %s args %s",
@@ -223,16 +229,7 @@ class IBMSVCvdiskhostmap(object):
             self.module.fail_json(msg="Failed to create vdiskhostmap.")
 
     def vdiskhostmap_update(self, modify):
-        # update the vdiskhostmap
-        self.log("updating vdiskhostmap")
-
-        if 'host_name' in modify:
-            self.log("host name is changed.")
-
-        if 'volname' in modify:
-            self.log("vol name is changed.")
-
-        self.changed = True
+        self.module.fail_json(msg="volume changed but update not implemented")
 
     def vdiskhostmap_delete(self):
         self.log("deleting vdiskhostmap '%s'", self.volname)

@@ -239,11 +239,17 @@ class IBMSVChost(object):
         if self.type:
             if self.type != data['type']:
                 props += ['type']
+        if self.protocol != data['protocol']:
+            props += ['protocol']
+        data_fcwwpn = set(map(lambda x: str(x['WWPN']).lower(), data['nodes'] ))
+        if set(self.fcwwpn.lower().split(":")) != data_fcwwpn:
+            props +=['fcwwpn']
+            self.log("%s %s", data_fcwwpn, self.fcwwpn)
 
         if props is []:
             props = None
 
-        self.log("host_probe props='%s'", data)
+        self.log("host_probe props='%s' %s", data, str(props))
         return props
 
     def host_create(self):
@@ -294,22 +300,7 @@ class IBMSVChost(object):
                 msg="Failed to create host [%s]" % self.name)
 
     def host_update(self, modify):
-        # update the host
-        self.log("updating host '%s'", self.name)
-
-        cmd = 'chhost'
-        cmdopts = {}
-
-        # TBD: Be smarter handling many properties.
-        if 'type' in modify:
-            cmdopts['type'] = self.type
-        cmdargs = [self.name]
-
-        self.restapi.svc_run_command(cmd, cmdopts, cmdargs)
-
-        # Any error will have been raised in svc_run_command
-        # chhost does not output anything when successful.
-        self.changed = True
+        self.module.fail_json(msg="host changed but update not implemented")
 
     def host_delete(self):
         self.log("deleting host '%s'", self.name)
