@@ -5,6 +5,7 @@ support a couple of missing options:
 
 - the SCSI LUN ID when creating a mapping with ibm_svc_vol_map
 - the iogroup and default node when creating a volume with ibm_svc_vdisk
+- thin provisioning in ibm_svc_disk
 
 try to prevent changes (fail if a change is detected) as in its current state,
 the module does not know how to converge towards the defined state if the

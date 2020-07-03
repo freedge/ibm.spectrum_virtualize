@@ -150,6 +150,8 @@ class IBMSVCvdisk(object):
                                                              'tb', 'pb']),
                 easytier=dict(type='str', default='off', choices=['on', 'off',
                                                                   'auto']),
+                autoexpand=dict(type='str', default='off', choices=['on', 'off',
+                                                                  'auto']),
                 iogrp=dict(type='str', required=False),
                 node=dict(type='str', required=False)
             )
@@ -174,6 +176,7 @@ class IBMSVCvdisk(object):
         self.easytier = self.module.params.get('easytier', None)
         self.node = self.module.params.get('node', None)
         self.iogrp = self.module.params.get('iogrp', None)
+        self.autoexpand = self.module.params.get('autoexpand', None)
 
         self.restapi = IBMSVCRestApi(
             module=self.module,
@@ -208,11 +211,18 @@ class IBMSVCvdisk(object):
             if self.easytier != data['easy_tier']:
                 props += ['easytier']
 
+        if self.autoexpand == "on":
+            if self.autoexpand != str(data['autoexpand']):
+                props += ['autoexpand']
+
         if self.iogrp != None and self.iogrp != data['IO_group_name']:
             props += ['iogrp']
 
         if (self.size + ".00" + self.unit).upper() != data['capacity']:
             props += ['capacity']
+
+        if self.mdiskgrp != data['mdisk_grp_name']:
+            props += ['mdiskgrp']
 
         if props is []:
             props = None
@@ -238,6 +248,7 @@ class IBMSVCvdisk(object):
         # Make command
         cmd = 'mkvdisk'
         cmdopts = {}
+        cmdargs = None
         if self.mdiskgrp:
             cmdopts['mdiskgrp'] = self.mdiskgrp
         if self.size:
@@ -246,6 +257,9 @@ class IBMSVCvdisk(object):
             cmdopts['unit'] = self.unit
         if self.easytier:
             cmdopts['easytier'] = self.easytier
+        if self.autoexpand and self.autoexpand == "on":
+            cmdargs = ['-autoexpand']
+            cmdopts['rsize']  = '15%'
         if self.iogrp:
             cmdopts['iogrp'] = self.iogrp
         if self.node:
@@ -255,7 +269,7 @@ class IBMSVCvdisk(object):
         self.log("creating vdisk command %s opts %s", cmd, cmdopts)
 
         # Run command
-        result = self.restapi.svc_run_command(cmd, cmdopts, cmdargs=None)
+        result = self.restapi.svc_run_command(cmd, cmdopts, cmdargs=cmdargs)
         self.log("create vdisk result %s", result)
 
         if 'message' in result:
