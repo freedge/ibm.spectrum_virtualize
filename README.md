@@ -20,8 +20,10 @@ install after cloning (https://github.com/freedge/ibm.spectrum_virtualize/)
 
 ```
 ansible-galaxy collection build --force
-ansible-galaxy collection install ibm-spectrum_virtualize-1.1.0.tar.gz
+ansible-galaxy collection install ibm-spectrum_virtualize-1.1.0.tar.gz --force
 ```
+
+- ibm_svc_vdisk state: absent rename the disk instead of deleting it
 
 
 -------------------------------

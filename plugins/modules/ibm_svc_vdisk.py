@@ -8,6 +8,7 @@
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+import time
 __metaclass__ = type
 
 ANSIBLE_METADATA = {'status': ['preview'],
@@ -285,14 +286,14 @@ class IBMSVCvdisk(object):
     def vdisk_delete(self):
         self.log("deleting vdisk '%s'", self.name)
 
-        cmd = 'rmvdisk'
-        cmdopts = None
+        cmd = 'chvdisk'
+        cmdopts = dict(name=self.name + "_" + str(int(time.time())))
         cmdargs = [self.name]
 
         self.restapi.svc_run_command(cmd, cmdopts, cmdargs)
 
         # Any error will have been raised in svc_run_command
-        # chmvdisk does not output anything when successful.
+        # chvdisk does not output anything when successful.
         self.changed = True
 
     def apply(self):
