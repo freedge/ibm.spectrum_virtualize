@@ -46,7 +46,7 @@ steps:
 
 - task: GithubRelease@0
   displayName: 'Create GitHub Release'   
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/develop'))
   inputs:
     tagSource: manual
     tag: v$(major).$(minor).$(revision)
@@ -58,7 +58,7 @@ steps:
 - script: |
     ansible-galaxy collection publish --token $(galaxy_token) freedge-tmp_spectrum_virtualize-*.tar.gz
   displayName: 'Publish on Galaxy'
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/develop'))
 
 
 
