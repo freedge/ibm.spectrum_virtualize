@@ -260,7 +260,7 @@ class IBMSVCvdisk(object):
             cmdopts['easytier'] = self.easytier
         if self.autoexpand and self.autoexpand == "on":
             cmdargs = ['-autoexpand']
-            cmdopts['rsize']  = '15%'
+            cmdopts['rsize']  = '2%'
         if self.iogrp:
             cmdopts['iogrp'] = self.iogrp
         if self.node:
